@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSSocks", "CSSocks\CSSocks.csproj", "{464B1FE6-CD55-4983-8850-A717AA362CDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Socks5Lib", "Socks5Lib\Socks5Lib.csproj", "{B38D823D-2D6D-455C-AFF3-D72549F91D0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{464B1FE6-CD55-4983-8850-A717AA362CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{464B1FE6-CD55-4983-8850-A717AA362CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{464B1FE6-CD55-4983-8850-A717AA362CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{464B1FE6-CD55-4983-8850-A717AA362CDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B38D823D-2D6D-455C-AFF3-D72549F91D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B38D823D-2D6D-455C-AFF3-D72549F91D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B38D823D-2D6D-455C-AFF3-D72549F91D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B38D823D-2D6D-455C-AFF3-D72549F91D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
