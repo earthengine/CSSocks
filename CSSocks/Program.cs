@@ -8,7 +8,7 @@ namespace CSSocks
         {
             var svr = new TcpServer(8788, async rw =>
             {
-                await new HttpHandler(rw).ParseInput();
+                await new Socks5Handler(rw).ParseInput();
             });
             svr.Start();
         }

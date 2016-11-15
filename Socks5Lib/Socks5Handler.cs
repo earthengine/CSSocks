@@ -22,12 +22,12 @@ namespace Socks5Lib
             }
             return null;
         }
-        private void RunCommand(IPEndPoint ep, int cmd)
+        private async Task RunCommand(IPEndPoint ep, int cmd)
         {
             switch (cmd)
             {
                 case 0x01: //CONNECT
-                    ConnectCommand(ep);
+                    await ConnectCommand(ep);
                     break;
                 case 0x02: //BIND
                     BindCommand(ep);
@@ -68,9 +68,20 @@ namespace Socks5Lib
         {
             throw new NotImplementedException();
         }
-        private void ConnectCommand(IPEndPoint ep)
+        private async Task ConnectCommand(IPEndPoint ep)
         {
-            throw new NotImplementedException();
+            var tc = new TcpClient(ep);
+            await tc.Connect();
+            
+            var buf = new byte[10];
+            Array.Copy(new byte[] { 0x5, 0, 0, 0x1 }, buf, 4);
+            Array.Copy(tc.Source.GetAddressBytes(), 0, buf, 4, 4);
+            buf[8] = (byte)(tc.Port >> 8);
+            buf[9] = (byte)(tc.Port & 0xff);
+
+            await readWrite.Write(buf);
+
+            tc.BindWith(readWrite);
         }
         private void UdpAssociateCommand(IPEndPoint ep)
         {
@@ -95,7 +106,7 @@ namespace Socks5Lib
                 input = await readWrite.Read(4);
                 IPEndPoint ep = await ReadEndPoint(input[3]);
                 if (ep == null) break;
-                RunCommand(ep, input[1]);
+                await RunCommand(ep, input[1]);
             }
 
             readWrite.FinishWrite();
