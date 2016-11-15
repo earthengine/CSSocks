@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Socks5Lib
@@ -25,33 +23,32 @@ namespace Socks5Lib
         void FinishWrite();
     }
 
-    public class SocketAsyncReadWrite : IAsyncReadWrite
+    public class DelegateAsyncReadWrite : IAsyncReadWrite
     {
-        private Socket sock;
-        private IMemoryBuffer buf;
-        private SocketAsyncReadWrite(Socket sock, IMemoryBuffer buf)
+        private Action finishWrite;
+        private Func<int, Task<byte[]>> read;
+        private Func<byte[], Task> write;
+
+        public DelegateAsyncReadWrite(Action finishWrite, Func<int, Task<byte[]>> read, Func<byte[], Task> write)
         {
-            this.sock = sock;
-            this.buf = buf;
+            this.finishWrite = finishWrite;
+            this.read = read;
+            this.write = write;
         }
+
         public void FinishWrite()
         {
-            sock.Shutdown(SocketShutdown.Send);
+            finishWrite();
         }
 
         public Task<byte[]> Read(int count)
         {
-            return buf.ReadExactAsync(count);
+            return read(count);
         }
 
         public Task Write(byte[] data)
         {
-            var las = new List<ArraySegment<byte>>() { new ArraySegment<byte>(data, 0, data.Length) };
-            return Task.Factory.FromAsync(sock.BeginSend, sock.EndSend, las, SocketFlags.None, null);
-        }
-        public static IAsyncReadWrite Create(Socket sock, IMemoryBuffer buf)
-        {
-            return new SocketAsyncReadWrite(sock, buf);
+            return write(data);
         }
     }
 }

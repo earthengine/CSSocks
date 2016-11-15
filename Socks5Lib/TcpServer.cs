@@ -54,9 +54,21 @@ namespace Socks5Lib
             var buf = new byte[4096];
             var mf = new MemoryBuffer();
             ReceiveData(sock, buf, mf);
-            handler(SocketAsyncReadWrite.Create(sock, mf));
+            handler(new DelegateAsyncReadWrite(
+                () => sock.Shutdown(SocketShutdown.Send),
+                count => mf.ReadExactAsync(count),
+                data =>  SendAsync(sock, data)
+            ));
         }
         
+        private static Task SendAsync(Socket s, byte[] buf)
+        {
+            var ev = GetEventArgs();
+            ev.SetBuffer(buf, 0, buf.Length);
+            var tsk = GetAsyncCallTask(ev);
+            s.SendAsync(ev);
+            return tsk;
+        }
     }
 
 }
