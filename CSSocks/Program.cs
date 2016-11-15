@@ -6,7 +6,10 @@ namespace CSSocks
     {
         static void Main(string[] args)
         {
-            var svr = new Socks5Server();
+            var svr = new TcpServer(8788, async rw =>
+            {
+                await new HttpHandler(rw).ParseInput();
+            });
             svr.Start();
         }
     }
