@@ -21,6 +21,8 @@ namespace Socks5Lib
         /// Indicate writing is finished and no more data to be written again
         /// </summary>
         void FinishWrite();
+        event EventHandler<int> DataWritten;
+        int Unread { get; }
     }
 
     public class DelegateAsyncReadWrite : IAsyncReadWrite
@@ -29,26 +31,45 @@ namespace Socks5Lib
         private Func<int, Task<byte[]>> read;
         private Func<byte[], Task> write;
 
+        public int Unread { get; private set; }
+
+        private EventHandler<int> dataWritten = EmptyActions.EmptyAction;
+        public event EventHandler<int> DataWritten
+        {
+            add { if (dataWritten == EmptyActions.EmptyAction) dataWritten = value; else dataWritten += value; }
+            remove { if (dataWritten == value) dataWritten = EmptyActions.EmptyAction; else dataWritten -= value; }
+        }
+
         public DelegateAsyncReadWrite(Action finishWrite, Func<int, Task<byte[]>> read, Func<byte[], Task> write)
         {
             this.finishWrite = finishWrite;
             this.read = read;
             this.write = write;
+            Unread = 0;
         }
 
         public void FinishWrite()
         {
             finishWrite();
+            dataWritten(this, -1);
         }
 
         public Task<byte[]> Read(int count)
         {
-            return read(count);
+            var r = read(count);
+            Unread -= count;
+            return r;
         }
 
-        public Task Write(byte[] data)
+        public async Task Write(byte[] data)
         {
-            return write(data);
+            await write(data);
+        }
+
+        public void RaiseDataWritten(int l)
+        {
+            Unread += l;
+            dataWritten(this, l);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Socks5Lib
@@ -8,6 +9,7 @@ namespace Socks5Lib
     {
         private IPEndPoint remote;
         private IPEndPoint local;
+        private Socket sock;
 
         public TcpClient(IPEndPoint ep)
         {
@@ -16,16 +18,16 @@ namespace Socks5Lib
 
         public async Task Connect()
         {
-            var sock = SocketHelper.GetSocket();
+            sock = SocketHelper.GetSocket();
             await SocketHelper.ConnectAsync(sock, remote);
             local = (IPEndPoint)sock.LocalEndPoint;
         }
         public IPAddress Source { get { return local.Address; } }
         public ushort Port { get { return (ushort)local.Port; } }
 
-        public void BindWith(IAsyncReadWrite readWrite)
+        public void Handle(Action<IAsyncReadWrite> handler)
         {
-            readWrite.
+            SocketHelper.ConnectAndHandle(sock, handler);
         }
     }
 }

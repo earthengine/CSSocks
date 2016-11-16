@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,13 +45,24 @@ namespace Socks5Lib
 
         public async Task ParseInput()
         {
-            for (;;)
+            var tc = new TcpClient(new IPEndPoint(Dns.GetHostAddresses("www.facebook.com")[0], 80));
+            await tc.Connect();
+            //await buf.Write(Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\nConnection: Closed\r\n\r\nHello, World!"));
+            //buf.FinishWrite();
+            tc.Handle(async aw =>
             {
-                var l = Encoding.ASCII.GetString(await ReadLine());
-                if (l.Length == 0) break;
-            }
-            await buf.Write(Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\nConnection: Closed\r\n\r\nHello, World!"));
-            buf.FinishWrite();
+                for (;;)
+                {
+                    var bl = await ReadLine();
+                    var l = Encoding.ASCII.GetString(bl);
+                    if (l.StartsWith("Host: "))
+                        bl = Encoding.ASCII.GetBytes("Host: www.facebook.com:80");
+                    await aw.Write(bl);
+                    await aw.Write(Encoding.ASCII.GetBytes("\r\n"));
+                    if (l.Length == 0) break;
+                }
+                SocketHelper.RelayHandler(buf, aw);
+            });
         }
     }
 }

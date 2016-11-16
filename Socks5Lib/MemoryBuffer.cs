@@ -6,7 +6,7 @@ namespace Socks5Lib
 {
     public interface IMemoryBuffer {
         Task<byte[]> ReadExactAsync(int count);
-        event EventHandler<long> DataWrote;
+        event EventHandler<int> DataWritten;
     }
     public class MemoryBuffer : Stream, IMemoryBuffer
     {
@@ -76,20 +76,20 @@ namespace Socks5Lib
         }
         public override void Write(byte[] buffer, int offset, int count)
         {
-            var l = 0L;
+            var l = 0;
             lock (writeMs)
             {
                 if (nomorewrite) throw new InvalidOperationException("No more write");
                 writeMs.Write(buffer, offset, count);
                 dataWroteTsk.TrySetResult(count);
-                l = writeMs.Length;
+                l = (int)writeMs.Length;
             }
             dataWrote(this, l);
         }
         #endregion
 
-        private EventHandler<long> dataWrote = EmptyActions.EmptyAction;
-        public event EventHandler<long> DataWrote {
+        private EventHandler<int> dataWrote = EmptyActions.EmptyAction;
+        public event EventHandler<int> DataWritten {
             add { if (dataWrote == EmptyActions.EmptyAction) dataWrote = value; else dataWrote += value; }
             remove { if (dataWrote == value) dataWrote = EmptyActions.EmptyAction; else dataWrote -= value; }
         }

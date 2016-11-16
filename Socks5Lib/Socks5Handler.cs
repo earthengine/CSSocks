@@ -81,7 +81,7 @@ namespace Socks5Lib
 
             await readWrite.Write(buf);
 
-            tc.BindWith(readWrite);
+            tc.Handle(rw => SocketHelper.RelayHandler(readWrite, rw));
         }
         private void UdpAssociateCommand(IPEndPoint ep)
         {
